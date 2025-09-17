@@ -34,10 +34,10 @@ pipeline {
                     mkdir -p ~/.ssh
                     ssh-keyscan -H 54.86.122.223 >> ~/.ssh/known_hosts
 
-                    # Create a symbolic link to force the correct Python path for Ansible's internal modules.
-                    ansible all -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} -m raw -a "sudo ln -sf /usr/bin/python3 /usr/bin/python"
+                    # Install required dependencies for Ansible modules on the remote host
+                    ansible all -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} -m raw -a "sudo apt-get update && sudo apt-get install -y python3-six"
 
-                    # Run the main Ansible playbook. The interpreter is now explicitly linked.
+                    # Run the main Ansible playbook
                     ansible-playbook -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} ansible/playbook.yml
                     '''
                 }
