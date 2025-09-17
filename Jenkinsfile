@@ -8,7 +8,6 @@ pipeline {
     stages {
         stage('Build Docker Image') {
             steps {
-                // Stop and remove any existing container with the same image name
                 sh '''
                 docker ps -a -q --filter "ancestor=$DOCKER_IMAGE" | xargs -r docker rm -f
                 docker images -q $DOCKER_IMAGE | xargs -r docker rmi -f
@@ -30,9 +29,18 @@ pipeline {
 
         stage('Deploy with Ansible') {
             steps {
-                sh 'ansible-playbook -i ansible/inventory.ini ansible/playbook.yml'
+                // Use withCredentials to securely access the SSH key
+                withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh-key', keyFileVariable: 'ANSIBLE_KEY')]) {
+                    sh '''
+                    # Add the remote host to the known_hosts file to prevent SSH errors
+                    mkdir -p ~/.ssh
+                    ssh-keyscan -H 54.86.122.223 >> ~/.ssh/known_hosts
+
+                    # Now run Ansible, passing the SSH key from Jenkins credentials
+                    ansible-playbook -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} ansible/playbook.yml
+                    '''
+                }
             }
         }
     }
 }
-
