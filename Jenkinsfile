@@ -28,14 +28,16 @@ pipeline {
         }
 
         stage('Deploy with Ansible') {
-    steps {
-        withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh-key', keyFileVariable: 'ANSIBLE_KEY')]) {
-            sh '''
-            mkdir -p ~/.ssh
-            ssh-keyscan -H 54.86.122.223 >> ~/.ssh/known_hosts
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh-key', keyFileVariable: 'ANSIBLE_KEY')]) {
+                    sh '''
+                    mkdir -p ~/.ssh
+                    ssh-keyscan -H 54.86.122.223 >> ~/.ssh/known_hosts
 
-            ansible-playbook -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} ansible/playbook.yml
-            '''
+                    ansible-playbook -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} ansible/playbook.yml
+                    '''
+                }
+            }
         }
     }
 }
