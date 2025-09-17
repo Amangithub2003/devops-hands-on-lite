@@ -34,7 +34,7 @@ pipeline {
                     mkdir -p ~/.ssh
                     ssh-keyscan -H 54.86.122.223 >> ~/.ssh/known_hosts
 
-                    ansible-playbook -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} ansible/playbook.yml
+                    ANSIBLE_PYTHON_INTERPRETER=/usr/bin/python3 ansible-playbook -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} ansible/playbook.yml
                     '''
                 }
             }
