@@ -28,19 +28,14 @@ pipeline {
         }
 
         stage('Deploy with Ansible') {
-            steps {
-                // Use withCredentials to securely access the SSH key
-                withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh-key', keyFileVariable: 'ANSIBLE_KEY')]) {
-                    sh '''
-                    # Add the remote host to the known_hosts file to prevent SSH errors
-                    mkdir -p ~/.ssh
-                    ssh-keyscan -H 54.86.122.223 >> ~/.ssh/known_hosts
+    steps {
+        withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh-key', keyFileVariable: 'ANSIBLE_KEY')]) {
+            sh '''
+            mkdir -p ~/.ssh
+            ssh-keyscan -H 54.86.122.223 >> ~/.ssh/known_hosts
 
-                    # Now run Ansible, passing the SSH key from Jenkins credentials
-                    ansible-playbook -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} ansible/playbook.yml
-                    '''
-                }
-            }
+            ansible-playbook -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} ansible/playbook.yml
+            '''
         }
     }
 }
