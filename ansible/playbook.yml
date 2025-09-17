@@ -1,13 +1,13 @@
 - hosts: web
   become: yes
+  gather_facts: false  # Add this line to disable the failing task
   tasks:
     - name: Install Docker
       apt:
         name: docker.io
         state: present
         update_cache: yes
-
+    
     - name: Run Web App Container
       shell: |
         docker run -d -p 80:80 amandock8252/devops-hands-on-lite:latest
-
