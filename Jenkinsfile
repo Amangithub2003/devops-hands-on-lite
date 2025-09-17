@@ -27,18 +27,19 @@ pipeline {
             }
         }
 
-        stage('Deploy with Ansible') {
+        stage('Deploy to EC2') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ansible-ssh-key', keyFileVariable: 'ANSIBLE_KEY')]) {
                     sh '''
                     mkdir -p ~/.ssh
                     ssh-keyscan -H 54.86.122.223 >> ~/.ssh/known_hosts
 
-                    # Install required dependencies for Ansible modules on the remote host
-                    ansible all -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} -m raw -a "sudo apt-get update && sudo apt-get install -y python3-six"
-
-                    # Run the main Ansible playbook
-                    ansible-playbook -i ansible/inventory.ini --private-key=${ANSIBLE_KEY} ansible/playbook.yml
+                    ssh -i ${ANSIBLE_KEY} ubuntu@54.86.122.223 "
+                        sudo docker stop \$(sudo docker ps -q --filter ancestor=$DOCKER_IMAGE) || true
+                        sudo docker rm \$(sudo docker ps -aq --filter ancestor=$DOCKER_IMAGE) || true
+                        sudo docker rmi $DOCKER_IMAGE || true
+                        sudo docker run -d -p 80:80 amandock8252/devops-hands-on-lite:latest
+                    "
                     '''
                 }
             }
