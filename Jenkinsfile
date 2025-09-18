@@ -35,10 +35,10 @@ pipeline {
                     ssh-keyscan -H 54.86.122.223 >> ~/.ssh/known_hosts
 
                     ssh -i ${ANSIBLE_KEY} ubuntu@54.86.122.223 "sudo bash -c '
-                        docker stop $(docker ps -q --filter ancestor=$DOCKER_IMAGE) || true
-                        docker rm $(docker ps -aq --filter ancestor=$DOCKER_IMAGE) || true
-                        docker rmi $DOCKER_IMAGE || true
-                        docker run -d -p 80:80 amandock8252/devops-hands-on-lite:latest
+                        /usr/bin/docker stop \$(/usr/bin/docker ps -q --filter ancestor=$DOCKER_IMAGE) || true
+                        /usr/bin/docker rm \$(/usr/bin/docker ps -aq --filter ancestor=$DOCKER_IMAGE) || true
+                        /usr/bin/docker rmi $DOCKER_IMAGE || true
+                        /usr/bin/docker run -d -p 80:80 amandock8252/devops-hands-on-lite:latest
                     '"
                     '''
                 }
